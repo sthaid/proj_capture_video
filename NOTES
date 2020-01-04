@@ -66,7 +66,7 @@ video program: vlc
 How to use rpmfusion
   https://rpmfusion.org/Configuration/
 
-To vlc install on Fedora
+To install vlc on Fedora
   rpm -ivh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm
   yum install vlc
 
@@ -89,7 +89,7 @@ apt update                       # update local package database
 apt upgrade [-y]                 # upgrade the installed packages
 apt full-upgrade                 # same as upgrade, but if package removal is needed it will do so
 
-apt update  && apt upgrade -y    # system upgrade
+apt update && apt upgrade -y     # system upgrade
 
 apt search <search_term>         # search package database 
 
@@ -109,13 +109,13 @@ apt list --installed             # list installed packages
 command line access go google drive
 =================================
 
-gdrive 
-  https://github.com/gdrive-org/gdrive
+gdrive program 
   https://linuxnewbieguide.org/using-google-drive-from-the-linux-command-line/
+  https://github.com/gdrive-org/gdrive
 
-to build and install gdrive
+to build and install gdrive program from source code
   install go: 
-    yum install golang-bin
+    yum install golang-bin   # ... or 
     apt install golang
   build
     go get github.com/prasmussen/gdrive
@@ -123,10 +123,10 @@ to build and install gdrive
     vi _release/build-all.sh
         set PLATFORMS=<your_platform>
     _release/build-all.sh
-  link to the binary
+  set symbolic link to the built binary
     ln -s ~/go/src/github.com/prasmussen/gdrive/_release/bin/gdrive-linux-rpi  ~/bin/gdrive
   run 'gdrive about', and attempt to authorize
-    I was unable to authorize access to my google drive
+    I was unable to authorize access to my google drive, see next step 
 
 how to modify gdrive to authorize access to google drive ...
   note - I already have a google developer project, which I make use of for the following steps
