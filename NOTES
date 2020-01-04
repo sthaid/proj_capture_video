@@ -1,0 +1,163 @@
+=================================
+video programs
+=================================
+
+v4l2-ctl   An application to control video4linux drivers
+vlc        media player
+ffmpeg     video converter
+guvcview   GTK+ base UVC Viewer
+cheese     tool to take pictures and videos from your webcam
+
+=================================
+video program: v4l2
+=================================
+
+To install on Fedora
+  sudo dnf install v4l-utils
+
+Examples
+  v4l2-ctl
+  v4l2-ctl --all
+  v4l2-ctl --list-formats-ext
+  v4l2-ctl --list-devices
+
+=================================
+video program: ffmpeg
+=================================
+
+Documentation
+  https://ffmpeg.org/ffmpeg-all.html
+
+Install on Fedora
+  dnf install ffmpeg
+  note: may need rpmfusion, I don't remember
+
+Example: Make a video recording
+  ffmpeg -i /dev/video0 out.mp4
+  ffmpeg -i /dev/video0 out.mov
+  ffmpeg -i /dev/video0 out.avi
+
+  - output format is determined from filename
+  - attempt is made to determine input format from the input source,
+    if unsuccessful then the '-f' option is needed to specify the format
+
+Example: List ffmpeg capabilities
+  ffmpeg -formats
+  ffmpeg -codecs
+
+Example: Make a sound recording, and play it back
+  ffmpeg -f alsa -i plughw:U0x46d0x825 out.wav
+  aplay out.wav
+
+  arecord -l  # list CAPTURE Hardware Devices
+  aplay -l    # list PLAYBACK Hardware Devices
+
+  Note - use 'arecord -l' to determine the plughw name
+
+Example: Merged Video and Audio
+  ffmpeg -f v4l2 -i /dev/video0 \
+         -f alsa -i plughw:U0x46d0x825 \
+         test.mov
+
+=================================
+video program: vlc
+=================================
+
+How to use rpmfusion
+  https://rpmfusion.org/Configuration/
+
+To vlc install on Fedora
+  rpm -ivh http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-stable.noarch.rpm
+  yum install vlc
+
+Examples
+  vlc v4l2:///dev/video0
+  cvlc v4l2:///dev/video0 \
+     --sout='#transcode{vcodec=h264,vb072}:standard{access=file,mux=mp4,dst=capture.mp4}' 
+
+=================================
+video program: guvcview
+=================================
+
+http://guvcview.sourceforge.net/Doc.html
+
+=================================
+notes on using apt
+=================================
+
+apt update                       # update local package database
+apt upgrade [-y]                 # upgrade the installed packages
+apt full-upgrade                 # same as upgrade, but if package removal is needed it will do so
+
+apt update  && apt upgrade -y    # system upgrade
+
+apt search <search_term>         # search package database 
+
+apt install <package_name>       # install package
+              --no-upgrade       # if already installed will not upgrade
+              --only-upgrade     # will not install but only upgrade
+
+apt remove <package_name>        # removes package but leaves residue config files
+apt purge <package_name>         # removes package and config files
+
+apt show   <package_name>        # learn about a package
+
+apt list --upgradeable           # list packages that can be upgraded
+apt list --installed             # list installed packages
+
+=================================
+command line access go google drive
+=================================
+
+gdrive 
+  https://github.com/gdrive-org/gdrive
+  https://linuxnewbieguide.org/using-google-drive-from-the-linux-command-line/
+
+to build and install gdrive
+  install go: 
+    yum install golang-bin
+    apt install golang
+  build
+    go get github.com/prasmussen/gdrive
+    cd ~/go/src/github.com/prasmussen/gdrive
+    vi _release/build-all.sh
+        set PLATFORMS=<your_platform>
+    _release/build-all.sh
+  link to the binary
+    ln -s ~/go/src/github.com/prasmussen/gdrive/_release/bin/gdrive-linux-rpi  ~/bin/gdrive
+  run 'gdrive about', and attempt to authorize
+    I was unable to authorize access to my google drive
+
+how to modify gdrive to authorize access to google drive ...
+  note - I already have a google developer project, which I make use of for the following steps
+  goto https://console.developers.google.com/apis
+  select OAuth Consent Screen
+    choose: External
+    select name, such as: 'my access to google drive'
+    save
+  select Credentials
+    enable google drive api
+    create credentials
+    save CLIENT_ID and CLIENT_SECRET for the next steps
+  modify gdrive program to use CLIENT_ID and CLIENT_SECRET
+    cd ~/go/src/github.com/prasmussen/gdrive
+    vi handlers_drive.go
+      modify ClientId and ClientSecret in the go code
+    _release/build-all.sh
+  run 'gdrive about', and attempt to authorize
+    I was able to authorize now
+
+some gdrive command examples
+  gdrive help
+  gdrive help about
+  gdrive about
+  gdrive list
+  gdrive list -m 1000 > gdrive_list
+  gdrive upload -p xxxxxxxxx test.mov
+    
+=================================
+XXX CRON or AT 
+=================================
+
+https://blog.sourcefabric.org/en/news/blog/2077/Schedule-stream-recordings-from-the-command-line-Part-2.htm
+
