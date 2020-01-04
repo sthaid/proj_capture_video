@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# XXX script for blank line
+# XXX at job
+# XXX turn light on /off
+
+# description section
+#   plughw XXX
+#     $ sudo arecord -l
+#     **** List of CAPTURE Hardware Devices ****
+#     card 1: U0x46d0x825 [USB Device 0x46d:0x825], device 0: USB Audio [USB Audio]
+#       Subdevices: 1/1
+#       Subdevice #0: subdevice #0
+
+# TODO 
+# - configure cron job
+# - turn light on and off
+
+log_blank_line()
+{
+    echo >> $filename_log
+}
+
+# set recording duration, in seconds
+duration_secs=10
+
+# create filename variables
+filename_prefix1="Shelby_`date +%a`_"
+filename_prefix2=$filename_prefix1`date +%b_%d_%Y_%H%M%S`
+filename_webcam=$filename_prefix2.mov
+filename_log=$filename_prefix2.log
+#echo $filename_prefix1
+#echo $filename_prefix2
+#echo $filename_webcam
+#echo $filename_log
+
+# these files should not already exist, but remove them just to be sure
+rm -f $filename_webcam $filename_log
+
+# output message
+echo "CREATING $filename_webcam" > $filename_log
+log_blank_line
+
+# run ffmpeg
+echo "RUNNING FFMPEG" >> $filename_log
+sudo ffmpeg -f v4l2 -i /dev/video0 \
+            -f alsa -i plughw:U0x46d0x825 \
+            -t $duration_secs \
+            -y -loglevel repeat+level+warning \
+            $filename_webcam \
+   >> $filename_log 2>&1
+log_blank_line
+
+# confirm that ffmpeg created the filename_webcam
+if [ ! -f $filename_webcam ]; then
+  echo "ERROR: FFMPEG FAILED TO CREATE $filename_webcam" >> $filename_log
+  log_blank_line
+  exit 1
+fi
+
+# log message indicating ffmpeg was successful
+echo "CREATED `du -h $filename_webcam`" >> $filename_log
+log_blank_line
+
+# upload filename_webcam to google drive
+echo "UPLOADING TO GDRIVE" >> $filename_log
+gdrive upload -p 1Zf2TpyN6Oyn0H93dfy-9sYJierGPGBWk  $filename_webcam \
+    >> $filename_log 2>&1
+if [ $? -ne 0 ]; then
+  echo "ERROR: UPLOAD FAILED status=$?" >> $filename_log
+  log_blank_line
+  exit 1
+fi
+log_blank_line
+
+# cleanup, and log completion message
+rm -f $filename_webcam
+echo "DONE" >> $filename_log
+log_blank_line
+
