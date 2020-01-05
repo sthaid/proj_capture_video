@@ -1,38 +1,39 @@
 #!/bin/bash
 
-# XXX script for blank line
-# XXX at job
-# XXX turn light on /off
+# XXX TODO 
+# - turn light on /off
+# - delete old files from google drive
+# - comment why wmv
 
-# description section
-#   plughw XXX
-#     $ sudo arecord -l
-#     **** List of CAPTURE Hardware Devices ****
-#     card 1: U0x46d0x825 [USB Device 0x46d:0x825], device 0: USB Audio [USB Audio]
-#       Subdevices: 1/1
-#       Subdevice #0: subdevice #0
-
-# TODO 
-# - configure cron job
-# - turn light on and off
+# This script is used to capture a video recording of my dog, Shelby
+# eating from her automatic dog feeder.
+#
+# This script is executed by a cron job, on a Raspberry Pi.
+#
+# ffmpeg is used to capture the video and audio from the webcam to
+# an wmv file.
+#
+# gdrive (see NOTES file) is used to upload the wmv file to a folder
+# on my google drive.
+#
+# The capture_audio_device is determined using 'sudo arecord -l'.
 
 log_blank_line()
 {
     echo >> $filename_log
 }
 
-# set recording duration, in seconds
-duration_secs=10
+# set configuration variables
+home=/home/haid
+capture_duration_secs=300
+capture_audio_device=U0x46d0x825
+google_drive_parent_id=1Zf2TpyN6Oyn0H93dfy-9sYJierGPGBWk
 
 # create filename variables
 filename_prefix1="Shelby_`date +%a`_"
 filename_prefix2=$filename_prefix1`date +%b_%d_%Y_%H%M%S`
-filename_webcam=$filename_prefix2.mov
+filename_webcam=$filename_prefix2.wmv
 filename_log=$filename_prefix2.log
-#echo $filename_prefix1
-#echo $filename_prefix2
-#echo $filename_webcam
-#echo $filename_log
 
 # these files should not already exist, but remove them just to be sure
 rm -f $filename_webcam $filename_log
@@ -42,10 +43,15 @@ echo "CREATING $filename_webcam" > $filename_log
 log_blank_line
 
 # run ffmpeg
+#   -f v4l2 -i /dev/video0                   # video input, format is v4l2
+#   -f alsa -i plughw:$capture_audio_device  # audio input, format alsa
+#   -t $capture_duration_secs                # duration of the recording
+#   -y                                       # overwrite output file if it already exists
+#   -loglevel repeat+level+warning           # log only warning an higher messages
 echo "RUNNING FFMPEG" >> $filename_log
 sudo ffmpeg -f v4l2 -i /dev/video0 \
-            -f alsa -i plughw:U0x46d0x825 \
-            -t $duration_secs \
+            -f alsa -i plughw:$capture_audio_device \
+            -t $capture_duration_secs \
             -y -loglevel repeat+level+warning \
             $filename_webcam \
    >> $filename_log 2>&1
@@ -64,7 +70,7 @@ log_blank_line
 
 # upload filename_webcam to google drive
 echo "UPLOADING TO GDRIVE" >> $filename_log
-gdrive upload -p 1Zf2TpyN6Oyn0H93dfy-9sYJierGPGBWk  $filename_webcam \
+HOME=$home $home/bin/gdrive upload -p $google_drive_parent_id  $filename_webcam \
     >> $filename_log 2>&1
 if [ $? -ne 0 ]; then
   echo "ERROR: UPLOAD FAILED status=$?" >> $filename_log
