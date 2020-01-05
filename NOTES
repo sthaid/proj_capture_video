@@ -32,14 +32,18 @@ Install on Fedora
   dnf install ffmpeg
   note: may need rpmfusion, I don't remember
 
+Install on Raspbian
+  It was already installed on Raspbian GNU/Linux 10 (buster).
+
 Example: Make a video recording
   ffmpeg -i /dev/video0 out.mp4
   ffmpeg -i /dev/video0 out.mov
   ffmpeg -i /dev/video0 out.avi
 
-  - output format is determined from filename
-  - attempt is made to determine input format from the input source,
-    if unsuccessful then the '-f' option is needed to specify the format
+  Output format is determined from the filename.
+
+  Attempt is made to determine input format from the input source,
+  if unsuccessful then the '-f' option is needed to specify the format.
 
 Example: List ffmpeg capabilities
   ffmpeg -formats
@@ -52,12 +56,47 @@ Example: Make a sound recording, and play it back
   arecord -l  # list CAPTURE Hardware Devices
   aplay -l    # list PLAYBACK Hardware Devices
 
-  Note - use 'arecord -l' to determine the plughw name
+  Note - use 'arecord -l' to determine the plughw name used above
 
 Example: Merged Video and Audio
   ffmpeg -f v4l2 -i /dev/video0 \
          -f alsa -i plughw:U0x46d0x825 \
          test.mov
+
+Video formats
+  On my Raspberry Pi, with 4 CPUs, the ffmpeg program is unable to
+  reliably include the audio in the output file. This occurs for the
+  mov, mkv, and mp4 output file formats.
+
+  What I observe is that the top command reports nearly 400% cpu 
+  utilization by ffmpeg, and ffmpeg reports warning "ALSA buffer xrun".
+  When playing back the file the video is okay, but the audio drops out 
+  after a few seconds.
+
+  I've tried running ffmpeg with various formats. The results are:
+
+                 ffmpeg
+    Format      CPU Util       Comments
+    ------      --------       --------
+     wmv          65           some audio distortion
+                               sees to be the best choice
+     avi          65           some audio distortion,
+                               audio seems worse than wmv format
+     mov         380           ALSA buffer xrun, 
+                               audio drops out after a few seconds
+     mkv         380           ALSO buffer xrun, 
+                               audio drops out after a few seconds
+     mp4         380           ALSA buffer xrun, 
+                               audio drops out after a few seconds
+
+  I believe that for the mov, mkv and mp4 formats that the ffmpeg program
+  is giving priority to the video capture, which uses most of the CPU cycles;
+  and thus not having enough remaining CPU cycles to capture the audio.
+
+  My testing has used the Logitech C270 Webcam.
+
+  Additional info on video formats:
+  https://www.uscreen.tv/blog/the-quest-for-the-best-video-format-how-do-you-know-whats-best-for-you/
 
 =================================
 video program: vlc
@@ -72,6 +111,7 @@ To install vlc on Fedora
 
 Examples
   vlc v4l2:///dev/video0
+
   cvlc v4l2:///dev/video0 \
      --sout='#transcode{vcodec=h264,vb072}:standard{access=file,mux=mp4,dst=capture.mp4}' 
 
@@ -106,7 +146,7 @@ apt list --upgradeable           # list packages that can be upgraded
 apt list --installed             # list installed packages
 
 =================================
-command line access go google drive
+command line access to google drive
 =================================
 
 gdrive program 
@@ -128,7 +168,7 @@ to build and install gdrive program from source code
   run 'gdrive about', and attempt to authorize
     I was unable to authorize access to my google drive, see next step 
 
-how to modify gdrive to authorize access to google drive ...
+how to modify the gdrive program to permit access to google drive ...
   note - I already have a google developer project, which I make use of for the following steps
   goto https://console.developers.google.com/apis
   select OAuth Consent Screen
@@ -142,7 +182,7 @@ how to modify gdrive to authorize access to google drive ...
   modify gdrive program to use CLIENT_ID and CLIENT_SECRET
     cd ~/go/src/github.com/prasmussen/gdrive
     vi handlers_drive.go
-      modify ClientId and ClientSecret in the go code
+      modify ClientId and ClientSecret
     _release/build-all.sh
   run 'gdrive about', and attempt to authorize
     I was able to authorize now
@@ -156,8 +196,10 @@ some gdrive command examples
   gdrive upload -p xxxxxxxxx test.mov
     
 =================================
-XXX CRON or AT 
+schedule bash script to run daily using cron
 =================================
 
-https://blog.sourcefabric.org/en/news/blog/2077/Schedule-stream-recordings-from-the-command-line-Part-2.htm
+edit /etc/crontab and add the following line to execute 
+the capture_video bash script daily at 16:45
 
+45 16   * * *   haid    cd /home/haid/proj_capture_video && ./capture_video
