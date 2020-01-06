@@ -25,7 +25,7 @@ log_blank_line()
 
 # set configuration variables
 home=/home/haid
-capture_duration_secs=300
+capture_duration_secs=900
 capture_audio_device=U0x46d0x825
 google_drive_parent_id=1Zf2TpyN6Oyn0H93dfy-9sYJierGPGBWk
 
@@ -66,6 +66,26 @@ fi
 
 # log message indicating ffmpeg was successful
 echo "CREATED `du -h $filename_webcam`" >> $filename_log
+log_blank_line
+
+# delete old google drive file for this day of the week
+# reference: https://developers.google.com/drive/api/v3/ref-search-terms
+echo "DELETING OLD GDRIVE FILES CONTAINING $filename_prefix1" >> $filename_log
+delete_id_list=( ` gdrive list \
+                       --no-header \
+                       --query "parents in '$google_drive_parent_id' AND \
+                                trashed = false AND \
+                                name contains '$filename_prefix1'" | \
+                   awk '{print $1}' ` )
+echo delete_id_list = ${delete_id_list[*]} >> $filename_log
+if [ "${delete_id_list[*]}" = Failed ]; then
+  echo "ERROR: FAILED TO DELETE OLD GDRIVE FILES" >> $filename_log
+  log_blank_line
+  exit 1
+fi
+for i in ${delete_id_list[@]}; do
+  gdrive delete $i >> $filename_log
+done
 log_blank_line
 
 # upload filename_webcam to google drive
