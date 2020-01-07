@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# XXX TODO 
-# - turn light on /off
-# - delete old files from google drive
-# - comment why wmv
-
-# This script is used to capture a video recording of my dog, Shelby
+# This script is used to capture a video recording of my dog, Shelby,
 # eating from her automatic dog feeder.
 #
 # This script is executed by a cron job, on a Raspberry Pi.
@@ -17,6 +12,11 @@
 # on my google drive.
 #
 # The capture_audio_device is determined using 'sudo arecord -l'.
+#
+# Wmv format is used because my Raspberry Pi can successfully create this
+# format (by running ffmpeg) with both video and audio content. Other formats, 
+# such as mp4, requre additional CPU processing to create the video that the 
+# ffmpeg fails to properly add the audio.
 
 log_blank_line()
 {
