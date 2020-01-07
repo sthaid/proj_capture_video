@@ -203,3 +203,27 @@ edit /etc/crontab and add the following line to execute
 the capture_video bash script daily at 16:45
 
 45 16   * * *   haid    cd /home/haid/proj_capture_video && ./capture_video
+
+=================================
+tplink smartplug 
+=================================
+
+My smartplug is TP-Link HS100, purchased from
+  https://www.amazon.com/Kasa-Smart-Wi-Fi-Plug-TP-Link/dp/B0178IC734
+
+After purchasing the TP-Link HS100 or HS100, you need:
+  - install the TP-Link Kasa App, and configure the smart plug on your wireless network
+  - adjust your router to make the smartplug's IP address static
+  - use the smartplug's IP addrss in the tplink_smartplug.py script as shown
+    in the examples below
+
+An excellent Reverse Engineering the TP-Link HS110 is found here
+  https://www.softscheck.com/en/reverse-engineering-tp-link-hs110/#TP-Link%20Smart%20Home%20Protocol
+  https://github.com/softScheck/tplink-smartplug
+   - tplink_smartplug.py
+   - tplink-smarthome-commands.txt
+
+Examples of using tplink_smartplug.py
+  ./tplink-smartplug-master/tplink_smartplug.py -t 192.168.1.191 -c off
+  ./tplink-smartplug-master/tplink_smartplug.py -t 192.168.1.191 -c on
+ 
