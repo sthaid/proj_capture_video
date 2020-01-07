@@ -25,7 +25,7 @@ log_blank_line()
 
 # set configuration
 home=/home/haid
-capture_duration_secs=900
+capture_duration_secs=600
 capture_audio_device=U0x46d0x825
 google_drive_parent_id=1Zf2TpyN6Oyn0H93dfy-9sYJierGPGBWk
 tplink_smartplug_ipaddr=192.168.1.191
