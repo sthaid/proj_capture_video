@@ -25,7 +25,7 @@ log_blank_line()
 
 # set configuration
 home=/home/haid
-capture_duration_secs=10
+capture_duration_secs=900
 capture_audio_device=U0x46d0x825
 google_drive_parent_id=1Zf2TpyN6Oyn0H93dfy-9sYJierGPGBWk
 tplink_smartplug_ipaddr=192.168.1.191
@@ -45,7 +45,7 @@ log_blank_line
 
 # turn on the lamp using TP-Link smartplug
 echo "TURNING ON THE LAMP" >> $filename_log
-./tplink-smartplug-master/tplink_smartplug.py -t 4tplink_smartplug_ipaddr -c on
+./tplink-smartplug-master/tplink_smartplug.py -t $tplink_smartplug_ipaddr -c on >> $filename_log 2>&1
 log_blank_line
 
 # run ffmpeg
@@ -65,7 +65,7 @@ log_blank_line
 
 # turn off the lamp using TP-Link smartplug
 echo "TURNING OFF THE LAMP" >> $filename_log
-./tplink-smartplug-master/tplink_smartplug.py -t $tplink_smartplug_ipaddr -c off
+./tplink-smartplug-master/tplink_smartplug.py -t $tplink_smartplug_ipaddr -c off >> $filename_log 2>&1
 log_blank_line
 
 # confirm that ffmpeg created the filename_webcam
