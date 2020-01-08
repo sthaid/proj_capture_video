@@ -82,7 +82,7 @@ log_blank_line
 # delete old google drive file for this day of the week
 # reference: https://developers.google.com/drive/api/v3/ref-search-terms
 echo "DELETING OLD GDRIVE FILES CONTAINING $filename_prefix1" >> $filename_log
-delete_id_list=( ` gdrive list \
+delete_id_list=( ` HOME=$home $home/bin/gdrive list \
                        --no-header \
                        --query "parents in '$google_drive_parent_id' AND \
                                 trashed = false AND \
@@ -95,7 +95,7 @@ if [ "${delete_id_list[*]}" = Failed ]; then
   exit 1
 fi
 for i in ${delete_id_list[@]}; do
-  gdrive delete $i >> $filename_log
+  HOME=$home $home/bin/gdrive delete $i >> $filename_log
 done
 log_blank_line
 
