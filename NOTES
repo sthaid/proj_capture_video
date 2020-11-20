@@ -194,6 +194,18 @@ some gdrive command examples
   gdrive list
   gdrive list -m 1000 > gdrive_list
   gdrive upload -p xxxxxxxxx test.mov
+
+if gdrive stops working...
+  https://stackoverflow.com/questions/58986145/gdrive-command-line-oauth2-cannot-fetch-token-400-bad-request
+
+  This is because your authorization token has expired.
+
+  Currently there is an open Issue to improve this error message here.
+
+  You should delete your token with 
+     rm ~/.gdrive/token_v*.json 
+  then run the gdrive about command to reauthorize
+
     
 =================================
 schedule bash script to run daily using cron
